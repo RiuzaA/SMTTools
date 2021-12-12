@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="SMT\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="SMT\TypeMap.fs" />
+    <Compile Include="SMT\Types.fs" />
+    <Compile Include="SMT\Utils.fs" />
+    <Compile Include="SMT\Formats\Text.fs" />
+    <Compile Include="SMT\Formats\TBL.fs" />
+    <Compile Include="SMT\Formats\MSG.fs" />
+    <Compile Include="SMT\Formats\TBB.fs" />
+    <Compile Include="SMT\Formats\TBCR.fs" />
+    <Compile Include="SMT\Formats\UAsset.fs" />
+    <Compile Include="SMT\Games\SMTSJR\SkillData.fs" />
+    <Compile Include="SMT\Games\SMTSJR\DemonInfo.fs" />
+    <Compile Include="SMT\Games\SMTIVA\DemonSortIndex.fs" />
+    <Compile Include="SMT\Games\SMTIVA\DemonInfo.fs" />
+    <Compile Include="SMT\Games\SMTIVA\SkillData.fs" />
+    <Compile Include="SMT\Games\SMTV\SkillData.fs" />
+    <Compile Include="SMT\Games\SMTV\DemonInfo.fs" />
+    <AvaloniaXaml Include="SMT\Views\DemonPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <Compile Include="SMT\AllGames.fs" />
+    <Compile Include="SMT\Json.fs" />
+    <Compile Include="SMT\Tests\Environment.fs" />
+    <Compile Include="SMT\Tests\Formats\Text.fs" />
+    <Compile Include="SMT\Tests\Formats\MSG.fs" />
+    <Compile Include="SMT\Tests\Integration\SMTV\UAsset.fs" />
+    <Compile Include="SMT\Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fuchu" Version="1.1.0" />
+    <PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+    <ProjectReference Include="..\UAssetAPI\UAssetAPI\UAssetAPI.csproj">
+      <Project>{178417ec-1177-413e-be85-c83aecd64279}</Project>
+      <Name>UAssetAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

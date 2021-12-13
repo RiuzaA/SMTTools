@@ -2,7 +2,7 @@
   "profiles": {
     "SMTTools": {
       "commandName": "Project",
-      "commandLineArgs": "SMTIV extract_json \"C:\\dev\\3ds\\games\\SMT IV\\0000.00000000\\romfs\\battle\\NKMSortIndex.tbb\" C:\\dev\\projects\\SMTIV\\test\\idontexist\\myfile"
+      "commandLineArgs": "SMTIV build_json C:\\dev\\projects\\smtiv\\test\\NKMSortIndex.tbb.json C:\\dev\\projects\\smtiv\\test\\NKMSortIndex.tbb"
     }
   }
 }

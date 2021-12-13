@@ -33,6 +33,11 @@ For all .patch.json files in the patch_directory, find the original file in the 
 
 Ex: foo/bar/baz.myfile.patch.json would patch foo/bar/baz.myfile in the game directory, and save is in the output as foo/bar/baz.myfile
 
+### build_json
+```build_json json_file output_file```
+
+Converts a JSON file into a binary file.
+
 ### diff_files
 ```diff_files file1 file2 output_json_patch_file```
 

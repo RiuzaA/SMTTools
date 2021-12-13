@@ -1,4 +1,6 @@
-﻿open Newtonsoft.Json
+﻿open Microsoft.AspNetCore.JsonPatch
+open Newtonsoft.Json.Linq
+open Newtonsoft.Json
 open System.IO
 open System.Text
 open System
@@ -9,8 +11,6 @@ open SMT.Json
 open SMT.Tests.Environment
 open SMT.Types
 open SMT.Utils
-
-open Microsoft.AspNetCore.JsonPatch
 
 let getGame (gameID: string) =
     match Map.tryFind (gameID.ToUpper()) SMT.AllGames.GamesByID with
@@ -29,6 +29,19 @@ let loadAndApplyPatch game origfile patchfile outfile =
 let main argv =
     Encoding.RegisterProvider CodePagesEncodingProvider.Instance
     match argv with
+    | [| gameID; "build_json"; infile; outfile |] ->
+        let game   = getGame gameID
+        let inConfig = {configFromFile infile genericStorableFormats with Game = game}
+        let exportData = JsonConvert.DeserializeObject<Export<JObject>>(File.ReadAllText(infile))
+        let data = exportData.Data.ToObject(exportData.Type, JsonSerializer.Create(jsonSettings))
+        let file =
+            if Directory.Exists(outfile) then
+                $"{outfile}/{inConfig.Context.FullFileName}.json"
+            else
+                outfile
+        let outConfig = {configFromFile outfile genericStorableFormats with Game = game}
+        writeData outConfig outfile data
+        0
     | [| gameID; "extract_json"; infile; outfile |] ->
         let game   = getGame gameID
         let config = {configFromFile infile genericStorableFormats with Game = game}
@@ -87,6 +100,8 @@ let main argv =
         printfn "    Takes a file and a json patch file, and applies that patch to the file, saving the output."
         printfn "  apply_patches game_directory patch_directory output_director"
         printfn "    For all .patch.json files in the patch_directory, find the original file in the extracted game directory and apply the patch, saving the output."
+        printfn "  build_json json_file output_file"
+        printfn "    Converts a JSON file into a binary file"
         printfn "  diff_files file1 file2 output_json_patch_file"
         printfn "    Takes two files, and creates a JSON Patch of the the changes required to convert file1 into file2."
         printfn "  extract_csv input_file_path output_directory"

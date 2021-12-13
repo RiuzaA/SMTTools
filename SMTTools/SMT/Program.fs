@@ -94,5 +94,6 @@ let main argv =
         printfn "    Run tests for files in the given game directory. Only SMTV is supported at this time."
         0
     | e ->
-        printfn $"Unknown arguments. Use the help command or give no arguments to see list of commands."
+        let args = System.String.Join(" ", e)
+        printfn $"Unknown arguments {args}. Use the help command or give no arguments to see list of commands."
         0

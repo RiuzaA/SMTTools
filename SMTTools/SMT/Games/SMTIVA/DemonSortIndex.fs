@@ -16,7 +16,9 @@ type RaceNameStorer() =
             reader.ShiftPosition 16L
             { Name1 = name1; Name2 = name2 }
         member self.Write config data writer =
-            failwith "Unimplemented"
+            writer.EnsureSize 0x28 <| fun () ->
+                writer.WriteZeroPaddedString 0x16 data.Name1
+                writer.WriteZeroPaddedString 0x16 data.Name2
     interface ICSV<RaceName> with
         member self.CSVHeader _ _ = refCSVHeader<RaceName>
         member self.CSVRows config data =
@@ -29,9 +31,10 @@ type ActorName =
 
 type ActorNameStorer() =
     interface IStorable<ActorName> with
-        member self.Read _ reader = { Name = reader.ReadZeroPaddedString 32 }
+        member self.Read _ reader = { Name = reader.ReadZeroPaddedString 0x20 }
         member self.Write config data writer =
-            failwith "Unimplemented"
+            writer.EnsureSize 0x20 <| fun () ->
+                writer.WriteZeroPaddedString 0x20 data.Name
     interface ICSV<ActorName> with
         member self.CSVHeader _ _ = refCSVHeader<ActorName>
         member self.CSVRows config data =

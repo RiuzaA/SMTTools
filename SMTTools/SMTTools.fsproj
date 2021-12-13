@@ -6,10 +6,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Page Include="SMT\App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -27,14 +23,9 @@
     <Compile Include="SMT\Games\SMTIVA\DemonSortIndex.fs" />
     <Compile Include="SMT\Games\SMTIVA\DemonInfo.fs" />
     <Compile Include="SMT\Games\SMTIVA\SkillData.fs" />
+    <Compile Include="SMT\Games\SMTIV\DemonSortIndex.fs" />
     <Compile Include="SMT\Games\SMTV\SkillData.fs" />
     <Compile Include="SMT\Games\SMTV\DemonInfo.fs" />
-    <AvaloniaXaml Include="SMT\Views\DemonPanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaXaml>
-    <AvaloniaResource Include="**\*.xaml">
-      <SubType>Designer</SubType>
-    </AvaloniaResource>
     <Compile Include="SMT\AllGames.fs" />
     <Compile Include="SMT\Json.fs" />
     <Compile Include="SMT\Tests\Environment.fs" />

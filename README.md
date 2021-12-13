@@ -85,6 +85,12 @@ Table files containing rows of binary data. Partial support for parsing that bin
 - TBL[0] (95%):  Non-passive skill data
 - TBL[1] (80%):  Passive skill data
 
+#### Shin Megami Tensei IV
+
+##### romfs/Battle/NKMSortIndex.tbb
+- TBL[0] (100%): Actor/demon race names
+- TBL[1] (100%): Actor/demon names
+
 #### Shin Megami Tensei IV Apocalypse
 
 ##### romfs/Battle/NKMBaseTable.tbb

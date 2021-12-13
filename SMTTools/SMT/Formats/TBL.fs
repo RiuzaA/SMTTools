@@ -24,7 +24,10 @@ type TBLHeader =
     end
 
 // Needed to prevent Json.net from interpreting these as JArrays of strings instead of byte arrays
-type BinaryTBLEntry = {HexBytes: byte array}
+type BinaryTBLEntry =
+    { HexBytes: byte array }
+    interface IBytesLike with
+        member self.ToBytes () = self.HexBytes
 
 type TBLEntry = obj
 
@@ -50,6 +53,7 @@ type TBLStorer() =
         | [||]    -> None
         | entries -> Some (config.Game.CSVConverters.Get (entries.[0].GetType()))
     static let instance = TBLStorer()
+    static let bytesStorer = BytesStorer 0
     static member Instance with get () = instance
     interface IHeader with
         member self.IsHeaderMatching _ reader = isHeaderEq "TBL1" reader
@@ -102,4 +106,9 @@ type TBLStorer() =
         member self.CSVRows config data =
             match getConverter config data with
             | None -> [||]
-            | Some conv -> Array.map (fun row -> (conv :> ICSV<obj>).CSVRows config row) data.Entries |> Array.concat
+            | Some conv ->
+                let unwrapBin (header: obj) =
+                    match header with
+                    | :? BinaryTBLEntry as e -> e.HexBytes :> obj
+                    | e -> e
+                Array.map (fun row -> (conv :> ICSV<obj>).CSVRows config (unwrapBin row)) data.Entries |> Array.concat

@@ -65,14 +65,22 @@ let smtIV =
           ID   = "SMTIV"
           Name = "Shin Megami Tensei IV"
           Storers                = withDefaultStorers ()
+                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.RaceName>  (SMTIV.DemonSortIndex.RaceNameStorer()  |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.ActorName> (SMTIV.DemonSortIndex.ActorNameStorer() |> objStorable)
                                 |> ImmutableTypedMap.ofMutable
-          TableRowConverters     = Map.empty
+          TableRowConverters     = Map.ofList
+                                       [ {File = "NKMSortIndex.tbb"; TableNum = 0}, objStorable <| SMTIV.DemonSortIndex.RaceNameStorer()
+                                         {File = "NKMSortIndex.tbb"; TableNum = 1}, objStorable <| SMTIV.DemonSortIndex.ActorNameStorer() ]
           CSVConverters          = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.CSVConverters
                                        [ typedefof<SMT.Formats.MSG.MSG>,   (storableCSV <| SMT.Formats.MSG.MSGStorer())
-                                         typedefof<SMT.Formats.TBL.TBL>,   (storableCSV <| SMT.Formats.TBL.TBLStorer()) ]
+                                         typedefof<SMT.Formats.TBL.TBL>,   (storableCSV <| SMT.Formats.TBL.TBLStorer())
+                                         typedefof<SMTIV.DemonSortIndex.RaceName>,   (storableCSV <| SMTIV.DemonSortIndex.RaceNameStorer())
+                                         typedefof<SMTIV.DemonSortIndex.ActorName>,  (storableCSV <| SMTIV.DemonSortIndex.ActorNameStorer())
+                                        ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]
           OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"] }
+
 let smtIVA =
     { defaultGame with
           ID   = "SMTIVA"
@@ -136,7 +144,8 @@ let unknown =
                                          typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ] }
 
 let GamesByID = Map.ofList [ smtSJR.ID.ToUpper(),  smtSJR
-                             smtIVA.ID.ToUpper(),  smtV
+                             smtIV.ID.ToUpper(),   smtIV
+                             smtIVA.ID.ToUpper(),  smtIVA
                              smtV.ID.ToUpper(),    smtV
                              unknown.ID.ToUpper(), unknown]
 

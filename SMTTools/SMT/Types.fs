@@ -13,6 +13,9 @@ type LogType = Info | Debug | Warning | Error
 
 let log t s = printfn $"log {t.ToString()}: {s}"
 
+type IBytesLike =
+    abstract member ToBytes : unit -> byte array
+
 type TableID = {File: string; TableNum: int}
 
 type IStorable<'a> =

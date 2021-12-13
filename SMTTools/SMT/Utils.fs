@@ -97,12 +97,14 @@ type AnyStorer() =
         member self.CSVHeader config data =
             let bytes = match data with
                         | :? (byte array) as bytes -> bytes
+                        | :? IBytesLike as bytesLike -> bytesLike.ToBytes()
                         | s when (s.GetType()).IsValueType -> bytesFromStruct s
                         | e -> failwith $"unable to get bytes for type `{e.GetType()}`"
             ((BytesStorer(bytes.Length)) :> ICSV<byte array>).CSVHeader config bytes
         member self.CSVRows config data =
             let bytes = match data with
                         | :? (byte array) as bytes -> bytes
+                        | :? IBytesLike as bytesLike -> bytesLike.ToBytes()
                         | s when (s.GetType()).IsValueType -> bytesFromStruct s
                         | e -> failwith $"unable to get bytes for type `{e.GetType()}`"
             ((BytesStorer(bytes.Length)) :> ICSV<byte array>).CSVRows config bytes
@@ -110,6 +112,7 @@ type AnyStorer() =
         member self.WriteCSVFiles config data path =
             let bytes = match data with
                         | :? (byte array) as bytes -> bytes
+                        | :? IBytesLike as bytesLike -> bytesLike.ToBytes()
                         | s when (s.GetType()).IsValueType -> bytesFromStruct s
                         | e -> failwith $"unable to get bytes for type `{e.GetType()}`"
             ((BytesStorer(bytes.Length)) :> IManyCSV<byte array>).WriteCSVFiles config bytes path

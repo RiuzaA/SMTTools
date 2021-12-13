@@ -29,7 +29,9 @@ let jsonSettings =
     settings.ReferenceLoopHandling <- ReferenceLoopHandling.Ignore
     settings
 
-let writeJsonFile file data = File.WriteAllText(file, JsonConvert.SerializeObject(data, jsonSettings))
+let writeJsonFile file data =
+    (new FileInfo(file)).Directory.Create()
+    File.WriteAllText(file, JsonConvert.SerializeObject(data, jsonSettings))
 
 let writeJsonPatchFile file dataOrig dataNew =
     let jsonOrig = JsonConvert.SerializeObject(dataOrig, jsonSettings)

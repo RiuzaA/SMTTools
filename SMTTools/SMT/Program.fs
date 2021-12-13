@@ -33,8 +33,11 @@ let main argv =
         let game   = getGame gameID
         let config = {configFromFile infile genericStorableFormats with Game = game}
         let data   = readData config infile
-        let fileAttr = File.GetAttributes outfile
-        let file = if fileAttr &&& FileAttributes.Directory = FileAttributes.Directory then $"{outfile}/{config.Context.FullFileName}.json" else outfile
+        let file =
+            if Directory.Exists(outfile) then
+                $"{outfile}/{config.Context.FullFileName}.json"
+            else
+                outfile
         writeJsonFile file <| mkExport config data
         0
     | [| gameID; "extract_csv"; infile; outdir |] ->

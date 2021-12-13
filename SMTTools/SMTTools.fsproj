@@ -29,6 +29,7 @@
     <Compile Include="SMT\AllGames.fs" />
     <Compile Include="SMT\Json.fs" />
     <Compile Include="SMT\Tests\Environment.fs" />
+    <Compile Include="SMT\Tests\Utils.fs" />
     <Compile Include="SMT\Tests\Formats\Text.fs" />
     <Compile Include="SMT\Tests\Formats\MSG.fs" />
     <Compile Include="SMT\Tests\Integration\SMTV\UAsset.fs" />

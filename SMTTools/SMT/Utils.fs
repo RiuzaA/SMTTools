@@ -224,9 +224,10 @@ type BinaryWriter with
         | Known a   -> writer.Write (byte (LanguagePrimitives.EnumToValue a))
         | Unknown a -> writer.Write a
 
+    /// Writes the given string as a NULL terminated string of a fixed length, padded with 0's if it is smaller than the maximum size
     member writer.WriteZeroPaddedString (len: int) (str: string) =
         let targetPos = writer.BaseStream.Position + int64 len
-        let cutStr = if str.Length > len then str.Substring(0, len) else str
+        let cutStr = if str.Length >= len then str.Substring(0, len - 1) else str
         for c in cutStr.ToCharArray() do
             writer.Write(Convert.ToByte c)
         while (writer.BaseStream.Position < targetPos) do

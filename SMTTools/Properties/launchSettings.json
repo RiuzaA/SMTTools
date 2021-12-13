@@ -2,7 +2,7 @@
   "profiles": {
     "SMTTools": {
       "commandName": "Project",
-      "commandLineArgs": "SMTIV build_json C:\\dev\\projects\\smtiv\\test\\NKMSortIndex.tbb.json C:\\dev\\projects\\smtiv\\test\\NKMSortIndex.tbb"
+      "commandLineArgs": "SMTV test C:\\dev\\projects\\smtv\\extract"
     }
   }
 }

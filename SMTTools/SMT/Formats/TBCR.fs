@@ -92,7 +92,6 @@ type TBCRStorer() =
                 // TBCR entries are padded with zeros so they have a 16-byte alignment
                 if totalSize % 16 <> 0 then
                     writer.PadZeros (16 - totalSize % 16)
-            ()
     
     interface IManyCSV<TBCR> with
         member self.WriteCSVFiles config data path =

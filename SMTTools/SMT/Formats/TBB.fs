@@ -1,5 +1,6 @@
 ﻿module SMT.Formats.TBB
 
+open Newtonsoft.Json
 open System.Collections.Generic
 open System.IO
 open System.Runtime.InteropServices
@@ -20,6 +21,9 @@ type TBBHeader =
         val Unknown:      uint32 // always 10?
         val EntryCount:   uint32
         val FileSize:     uint32
+
+        [<JsonConstructor>]
+        new(magicNum: uint32, unknown: uint32, entryCount: uint32, fileSize: uint32) = {MagicNum = magicNum; Unknown = unknown; EntryCount = entryCount; FileSize = fileSize}
     end
 
 type TBBEntry =
@@ -55,8 +59,47 @@ type TBBStorer() =
                     entries <- read {config with Context = {config.Context with SubFileIdx = idx}} reader :: entries
             {Header = header; Offsets = offsets; Entries = List.toArray <| List.rev entries}
         member self.Write config tbb writer =
-            failwith "Unimplemented"
-    
+            let startOffset = writer.BaseStream.Position
+            writer.Write tbb.Header.MagicNum
+            writer.Write tbb.Header.Unknown
+            writer.Write (uint32 tbb.Entries.Length)
+
+            let fileSizeOffset = writer.BaseStream.Position
+            writer.Write 0xFFFFFFFFu // dummy value for now
+
+            let offsetsOffset = writer.BaseStream.Position
+            for _ in tbb.Entries do
+                writer.Write 0xFFFFFFFFu
+
+            // pad with zeros to preverse 16 byte alignment
+            let headerSize = int (writer.BaseStream.Position - startOffset)
+            if headerSize % 16 <> 0 then
+                writer.PadZeros (16 - headerSize % 16)
+
+            for i = 0 to tbb.Entries.Length-1 do
+                let entryStartPos = writer.BaseStream.Position
+                let entry = tbb.Entries.[i]
+                let getStorer e =
+                    match findFirstWritableFormat config e with
+                    | None -> failwith $"No format found for storing file of type {entry.GetType()}"
+                    | Some storer -> storer 
+                let entryPos = writer.BaseStream.Position
+                writer.JumpTo <| offsetsOffset + 4L * int64 i
+                writer.Write (uint32 (entryPos - startOffset))
+                writer.JumpTo entryPos
+                match entry with
+                | TBBMSG msg -> iWrite config (getStorer msg) (msg :> obj) writer
+                | TBBTBL tbl -> iWrite config (getStorer tbl) (tbl :> obj) writer
+                let totalSize = int <| writer.BaseStream.Position - entryStartPos
+                // TBB entries are padded with zeros so they have a 16-byte alignment
+                if totalSize % 16 <> 0 then
+                    writer.PadZeros (16 - totalSize % 16)
+            let endOffset = writer.BaseStream.Position
+            let length = endOffset - startOffset
+            writer.JumpTo fileSizeOffset
+            writer.Write (uint32 length)
+            writer.JumpTo endOffset
+
     interface IManyCSV<TBB> with
         member self.WriteCSVFiles config data path =
             let map = TypedMap<int>()

@@ -6,6 +6,7 @@ open System.Collections.Immutable
 open System.Text
 open Newtonsoft.Json
 
+open SMT.Settings
 open SMT.TypeMap
 open Newtonsoft.Json.Linq
 
@@ -34,7 +35,8 @@ and Game =
       CSVConverters:          CSVConverters
       ManyCSVConverters:      ManyCSVConverters
       OutOfRangeCharMappings: Map<char, string>
-      PrivateUseCharMappings: Map<char, string> }
+      PrivateUseCharMappings: Map<char, string>
+      AllowNullCharsInMBM:    bool}
 and ConfigContext =
     { BaseFileName:       string // file name up until first extension, resembling just the game file (i.e. CoolData.tbb.patch.json's base is CoolData.tbb)
       FullFileName:       string // entire file name;
@@ -43,10 +45,13 @@ and ConfigContext =
       SubFileIdx:         int
       SameFileValues:     ImmutableTypedMap<int>
       AllStorableFormats: StorableFormat list
-      GetFileWriter:      string -> BinaryWriter}
+      GetFileWriter:      string -> BinaryWriter 
+      DecodeCharPairs:    Map<char, char>
+      EncodeCharPairs:    Map<char, char> }
 and Config =
     { Game:      Game
-      Context:   ConfigContext }
+      Context:   ConfigContext
+      Settings:  Settings }
 
 and StorableFormat(header: IHeader, storable: IStorable<obj>) =
     interface IStorable<obj> with
@@ -137,7 +142,12 @@ type HexBytesConverter() =
             JArray(Array.map (fun b -> (int b).ToString("X2")) v).WriteTo(writer)
         | _ -> failwith $"Unable to write json for type {value.GetType()}"
 
-type CSVUnpackAttribute() = inherit Attribute()
+type CSVUnpackAttribute(prefix: string) =
+    inherit Attribute()
+
+    new() = CSVUnpackAttribute("")
+
+    member self.Prefix with get () = prefix
 
 type Export<'a> =
     { GameID:       string

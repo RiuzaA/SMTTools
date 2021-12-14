@@ -6,6 +6,7 @@ open System.Runtime.InteropServices
 open System.Text
 open Microsoft.FSharp.NativeInterop
 
+open SMT.Settings
 open SMT.TypeMap
 open SMT.Types
 open System.Collections.Immutable
@@ -76,8 +77,9 @@ let structWrite<'a> (writer: BinaryWriter) (a: 'a) = writer.Write(bytesFromStruc
 
 let rec refCSVHeader<'a> =
     let rec names prefixes (p: PropertyInfo) =
-            if p.PropertyType.GetCustomAttribute(typedefof<CSVUnpackAttribute>, true) <> null then
-                p.PropertyType.GetProperties() |> Array.map (names (p.Name :: prefixes)) |> Array.concat
+            let csvUnpackAttr = p.PropertyType.GetCustomAttribute(typedefof<CSVUnpackAttribute>, true)
+            if csvUnpackAttr <> null then
+                p.PropertyType.GetProperties() |> Array.map (names (((csvUnpackAttr :?> CSVUnpackAttribute).Prefix + p.Name) :: prefixes)) |> Array.concat
             else
                 [| System.String.Join(".", List.rev (p.Name :: prefixes)) |]
     (typedefof<'a>).GetProperties() |> Array.map (names []) |> Array.concat
@@ -152,35 +154,6 @@ let writeData config file (data: obj) =
         use writer = config.Context.GetFileWriter file
         iWrite config storer data writer
 
-// Defaults
-
-let defaultGame =
-    { ID                     = "Unknown"
-      Name                   = "Unknown"
-      Storers                = ImmutableTypedMap()
-      Sections               = Map.empty
-      TableRowConverters     = Map.empty
-      CSVConverters          = CSVConverters(ImmutableDictionary.Create(), StorableCSV(objCSV (AnyStorer()), objStorable (AnyStorer())))
-      ManyCSVConverters      = ManyCSVConverters(ImmutableDictionary.Create(), StorableManyCSV(objManyCSV (AnyStorer()), objStorable (AnyStorer())))
-      OutOfRangeCharMappings = Map.empty
-      PrivateUseCharMappings = Map.empty }
-let configFromFile (filepath: string) (storableFormats: StorableFormat list) =
-    let name         = Path.GetFileName filepath
-    let firstDotIdx  = name.IndexOf '.'
-    let secondDotIdx = if firstDotIdx = -1 then -1 else name.IndexOf('.', firstDotIdx + 1)
-    let baseFile     = if secondDotIdx = -1 then name else name.Substring(0, secondDotIdx)
-    { Game = defaultGame
-      Context = { BaseFileName       = baseFile
-                  FullFileName       = name
-                  FilePath           = filepath
-                  FileExtension      = Path.GetExtension(name)
-                  SubFileIdx         = 0
-                  SameFileValues     = ImmutableTypedMap()
-                  AllStorableFormats = storableFormats
-                  GetFileWriter      = fun file ->
-                      (new FileInfo(file)).Directory.Create()
-                      new BinaryWriter(File.Open(file, FileMode.Create, FileAccess.Write))}}
-
 // Extensions
 
 type BinaryReader with
@@ -213,6 +186,8 @@ type BinaryWriter with
     member writer.WriteStruct<'a>(a: 'a) = structWrite<'a> writer a
 
     member writer.JumpTo (i: int64) = writer.BaseStream.Position <- i
+
+    member writer.ShiftPosition (i: int64) = writer.BaseStream.Position <- writer.BaseStream.Position + i
 
     member writer.WriteEnum<'a when 'a : enum<byte>> (a: 'a) = writer.Write (LanguagePrimitives.EnumToValue a)
     member writer.WriteEnumUInt16<'a when 'a : enum<uint16>> (a: 'a) = writer.Write (LanguagePrimitives.EnumToValue a)
@@ -271,3 +246,43 @@ module Flag =
 
 module Marshal =
     let size<'a> = Marshal.SizeOf(typedefof<'a>)
+
+// Defaults
+
+let defaultGame =
+    { ID                     = "Unknown"
+      Name                   = "Unknown"
+      Storers                = ImmutableTypedMap()
+      Sections               = Map.empty
+      TableRowConverters     = Map.empty
+      CSVConverters          = CSVConverters(ImmutableDictionary.Create(), StorableCSV(objCSV (AnyStorer()), objStorable (AnyStorer())))
+      ManyCSVConverters      = ManyCSVConverters(ImmutableDictionary.Create(), StorableManyCSV(objManyCSV (AnyStorer()), objStorable (AnyStorer())))
+      OutOfRangeCharMappings = Map.empty
+      PrivateUseCharMappings = Map.empty
+      AllowNullCharsInMBM    = false }
+let configFromFile (filepath: string) (settings: Settings) (storableFormats: StorableFormat list) =
+    let name         = Path.GetFileName filepath
+    let firstDotIdx  = name.IndexOf '.'
+    let secondDotIdx = if firstDotIdx = -1 then -1 else name.IndexOf('.', firstDotIdx + 1)
+    let baseFile     = if secondDotIdx = -1 then name else name.Substring(0, secondDotIdx)
+    let decodePairs =
+        match settings.CharacterDictionaryFile with
+        | "" -> Map.empty
+        | file -> File.ReadAllLines file
+               |> Array.filter (String.length >> (=) 2)
+               |> Array.map (fun c -> c.[0], c.[1])
+               |> Map.ofArray
+    { Game     = defaultGame
+      Settings = settings
+      Context = { BaseFileName       = baseFile
+                  FullFileName       = name
+                  FilePath           = filepath
+                  FileExtension      = Path.GetExtension(name)
+                  SubFileIdx         = 0
+                  SameFileValues     = ImmutableTypedMap()
+                  AllStorableFormats = storableFormats
+                  DecodeCharPairs    = decodePairs
+                  EncodeCharPairs    = Map.insideOut decodePairs
+                  GetFileWriter      = fun file ->
+                      (new FileInfo(file)).Directory.Create()
+                      new BinaryWriter(File.Open(file, FileMode.Create, FileAccess.Write))} }

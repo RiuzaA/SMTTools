@@ -8,30 +8,40 @@ open Fuchu
 
 open SMT.AllGames
 open SMT.Json
+open SMT.Settings
 open SMT.Tests.Environment
 open SMT.Types
 open SMT.Utils
+
+let loadSettings () =
+    let file = "settings.json"
+    if File.Exists file then
+        JsonConvert.DeserializeObject<Settings>(File.ReadAllText(file))
+    else
+        writeJsonFile file defaultSettings
+        defaultSettings
 
 let getGame (gameID: string) =
     match Map.tryFind (gameID.ToUpper()) SMT.AllGames.GamesByID with
     | Some game -> game
     | None      -> failwith $"Unknown game with ID = `{gameID}`"
 
-let loadAndApplyPatch game origfile patchfile outfile = 
-    let config      = {configFromFile origfile genericStorableFormats with Game = game}
+let loadAndApplyPatch game settings origfile patchfile outfile = 
+    let config      = {configFromFile origfile settings genericStorableFormats with Game = game}
     let origData    = readData config origfile
     let patchDoc    = JsonConvert.DeserializeObject<JsonPatchDocument>(File.ReadAllText(patchfile), jsonSettings)
     let patchedData = applyJsonPatch config patchDoc origData
-    let outConfig   = {configFromFile outfile genericStorableFormats with Game = game}
+    let outConfig   = {configFromFile outfile settings genericStorableFormats with Game = game}
     writeData outConfig outfile patchedData
 
 [<STAThread>][<EntryPoint>]
 let main argv =
     Encoding.RegisterProvider CodePagesEncodingProvider.Instance
+    let settings = loadSettings ()
     match argv with
     | [| gameID; "build_json"; infile; outfile |] ->
         let game   = getGame gameID
-        let inConfig = {configFromFile infile genericStorableFormats with Game = game}
+        let inConfig = {configFromFile infile settings genericStorableFormats with Game = game}
         let exportData = JsonConvert.DeserializeObject<Export<JObject>>(File.ReadAllText(infile))
         let data = exportData.Data.ToObject(exportData.Type, JsonSerializer.Create(jsonSettings))
         let file =
@@ -39,12 +49,12 @@ let main argv =
                 $"{outfile}/{inConfig.Context.FullFileName}.json"
             else
                 outfile
-        let outConfig = {configFromFile outfile genericStorableFormats with Game = game}
+        let outConfig = {configFromFile outfile settings genericStorableFormats with Game = game}
         writeData outConfig outfile data
         0
     | [| gameID; "extract_json"; infile; outfile |] ->
         let game   = getGame gameID
-        let config = {configFromFile infile genericStorableFormats with Game = game}
+        let config = {configFromFile infile settings genericStorableFormats with Game = game}
         let data   = readData config infile
         let file =
             if Directory.Exists(outfile) then
@@ -55,14 +65,14 @@ let main argv =
         0
     | [| gameID; "extract_csv"; infile; outdir |] ->
         let game   = getGame gameID
-        let config = {configFromFile infile genericStorableFormats with Game = game}
+        let config = {configFromFile infile settings genericStorableFormats with Game = game}
         let data   = readData config infile
         let manyWriter = config.Game.ManyCSVConverters.GetOrThrow (data.GetType())
         (manyWriter :> IManyCSV<obj>).WriteCSVFiles config data outdir
         0
     | [| gameID; "apply_patch"; origfile; patchfile; outfile |] ->
         let game        = getGame gameID
-        loadAndApplyPatch game origfile patchfile outfile
+        loadAndApplyPatch game settings origfile patchfile outfile
         0
     | [| gameID; "apply_patches"; gameDir; patchDir; buildDir |] ->
         let game       = getGame gameID
@@ -72,7 +82,7 @@ let main argv =
             let baseFile = patchFile.Replace(bsPatchDir, "").Replace(".patch.json", "")
             let gameBaseFile = Path.Combine(gameDir, baseFile)
             if File.Exists gameBaseFile then
-                loadAndApplyPatch game gameBaseFile patchFile (Path.Combine(buildDir, baseFile))
+                loadAndApplyPatch game settings gameBaseFile patchFile (Path.Combine(buildDir, baseFile))
                 printfn $"Patched file {baseFile}"
             else
                 printfn $"Failed to find base file {gameBaseFile} for json patch {patchFile}"
@@ -80,17 +90,20 @@ let main argv =
         0
     | [| gameID; "diff_files"; origfile; newfile; outfile |] ->
         let game       = getGame gameID
-        let origConfig = {configFromFile origfile genericStorableFormats with Game = game}
+        let origConfig = {configFromFile origfile settings genericStorableFormats with Game = game}
         let origData   = readData origConfig origfile
-        let newConfig  = {configFromFile newfile genericStorableFormats with Game = game}
+        let newConfig  = {configFromFile newfile settings genericStorableFormats with Game = game}
         let newData    = readData newConfig newfile
         writeJsonPatchFile outfile (mkExport origConfig origData) (mkExport newConfig newData)
         printfn $"Wrote diff to {outfile}"
         0
-    | [| gameID; "test"; gameDir |] ->
-        let game = getGame gameID
-        Environment.WithGameRomfs game.ID gameDir
-        defaultMainThisAssembly argv
+    | [| "test" |] ->
+        if Map.isEmpty settings.GameDirectoriesForTests then
+            printfn "Unable to run tests as GameDirectoriesForTests is empty in your settings.json"
+            1
+        else
+            Map.iter (fun key dir -> Environment.WithGameRomfs key dir) settings.GameDirectoriesForTests
+            defaultMainThisAssembly argv
     | [|"help"|]
     | [||] ->
         printfn "SMT Tools command line editor"
@@ -108,8 +121,8 @@ let main argv =
         printfn "    Converts data in the file into a series of CSV documents for each table or set of binary data."
         printfn "  extract_json input_file_path output_file_or_directory"
         printfn "    Convert the given binary file into a JSON file"
-        printfn "  test game_data_directory"
-        printfn "    Run tests for files in the given game directory. Only SMTV is supported at this time."
+        printfn "  test"
+        printfn "    Run tests. Game directories must be specified in your settings.json GameDirectoriesForTests."
         0
     | e ->
         let args = System.String.Join(" ", e)

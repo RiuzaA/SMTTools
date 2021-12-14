@@ -101,7 +101,7 @@ type SkillData =
       Accuracy:      uint16     // 0x54
       IsPoison:      bool       // 0x56
       Zerox4A:       byte       // 0x57
-      IsConfuse:     bool       // 0x58
+      IsPanic:       bool       // 0x58
       IsCharm:       bool       // 0x59
       IsSleep:       bool       // 0x5A
       IsSeal:        bool       // 0x5B
@@ -161,7 +161,7 @@ type SkillDataStorer() =
               Accuracy      = reader.ReadUInt16 ()
               IsPoison      = reader.ReadByte () = 1uy
               Zerox4A       = reader.ReadByte ()
-              IsConfuse     = reader.ReadByte () = 1uy
+              IsPanic       = reader.ReadByte () = 1uy
               IsCharm       = reader.ReadByte () = 1uy
               IsSleep       = reader.ReadByte () = 1uy
               IsSeal        = reader.ReadByte () = 1uy
@@ -218,7 +218,7 @@ type SkillDataStorer() =
                 writer.Write data.Accuracy
                 writer.Write data.IsPoison
                 writer.Write data.Zerox4A
-                writer.Write data.IsConfuse
+                writer.Write data.IsPanic
                 writer.Write data.IsCharm
                 writer.Write data.IsSleep
                 writer.Write data.IsSeal
@@ -251,7 +251,6 @@ type SkillDataStorer() =
                 writer.Write data.Zerox8A
                 writer.Write data.Unknownx8C
             
-
     interface ICSV<SkillData> with
         member self.CSVHeader _ _ = refCSVHeader<SkillData>
         member self.CSVRows _ data =
@@ -278,7 +277,7 @@ type SkillDataStorer() =
                  (int data.Accuracy).ToString() + "%"
                  data.IsPoison.ToString()
                  (int data.Zerox4A).ToString("X2")
-                 data.IsConfuse.ToString()
+                 data.IsPanic.ToString()
                  data.IsCharm.ToString()
                  data.IsSleep.ToString()
                  data.IsSeal.ToString()

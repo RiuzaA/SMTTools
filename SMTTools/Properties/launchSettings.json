@@ -2,7 +2,7 @@
   "profiles": {
     "SMTTools": {
       "commandName": "Project",
-      "commandLineArgs": "SMTV test C:\\dev\\projects\\smtv\\extract"
+      "commandLineArgs": "test"
     }
   }
 }

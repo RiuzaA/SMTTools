@@ -5,6 +5,7 @@ open System.Collections.Generic
 open System.IO
 
 open SMT.AllGames
+open SMT.Settings
 open SMT.Types
 open SMT.Utils
 
@@ -22,7 +23,7 @@ module Utils =
         let path = Map.tryFind game.ID Environment.GameRomfs
                 |> Option.defaultValue ""
                 |> (+) ("/" + filename)
-        let config = {configFromFile path storableFormats with Game = game}
+        let config = {configFromFile path defaultSettings storableFormats with Game = game}
         use reader = new BinaryReader(File.OpenRead(path))
         let bytes = reader.ReadBytes (int reader.BaseStream.Length)
         reader.BaseStream.Position <- 0L
@@ -35,7 +36,7 @@ module Utils =
         Assert.Equal("bytes are the same with no changes", bytes, finalBytes)
 
     let writeToMemoryConfig game fileName (memStreamDict: Dictionary<string, MemoryStream>) =
-        let def = configFromFile fileName genericStorableFormats
+        let def = configFromFile fileName defaultSettings genericStorableFormats
         { def with Game = game
                    Context = {def.Context with GetFileWriter = fun fileName ->
                                                                    let memStream =

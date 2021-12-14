@@ -1,5 +1,6 @@
 ﻿module SMT.Games.SMTIVA.DemonSortIndex
 
+open SMT.Formats.Text
 open SMT.Types
 open SMT.Utils
 
@@ -11,14 +12,15 @@ type RaceName =
 type RaceNameStorer() =
     interface IStorable<RaceName> with
         member self.Read config reader =
-            let name1 = reader.ReadZeroPaddedString 16
-            let name2 = reader.ReadZeroPaddedString 16
+            let name1 = decodeAtlusText config 0x16 reader
+            let name2 = decodeAtlusText config 0x16 reader
             reader.ShiftPosition 16L
             { Name1 = name1; Name2 = name2 }
         member self.Write config data writer =
-            writer.EnsureSize 0x28 <| fun () ->
-                writer.WriteZeroPaddedString 0x16 data.Name1
-                writer.WriteZeroPaddedString 0x16 data.Name2
+            writer.EnsureSize 0x42 <| fun () ->
+                encodeZeroPaddedAtlusText config 0x16 data.Name1 writer
+                encodeZeroPaddedAtlusText config 0x16 data.Name2 writer
+                writer.PadZeros 0x16
     interface ICSV<RaceName> with
         member self.CSVHeader _ _ = refCSVHeader<RaceName>
         member self.CSVRows config data =

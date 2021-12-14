@@ -9,6 +9,7 @@
     <Page Include="SMT\App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Compile Include="SMT\Settings.fs" />
     <Compile Include="SMT\TypeMap.fs" />
     <Compile Include="SMT\Types.fs" />
     <Compile Include="SMT\Utils.fs" />
@@ -29,10 +30,13 @@
     <Compile Include="SMT\AllGames.fs" />
     <Compile Include="SMT\Json.fs" />
     <Compile Include="SMT\Tests\Environment.fs" />
+    <Compile Include="SMT\Tests\Integration\SMTSJR\TBB.fs" />
     <Compile Include="SMT\Tests\Utils.fs" />
+    <None Include="SMT\Tests\Integration\SMTIV\TBL.fs" />
+    <Compile Include="SMT\Tests\Integration\SMTIV\MSG.fs" />
     <Compile Include="SMT\Tests\Formats\Text.fs" />
-    <Compile Include="SMT\Tests\Formats\MSG.fs" />
     <Compile Include="SMT\Tests\Integration\SMTV\UAsset.fs" />
+    <Compile Include="SMT\Tests\Integration\SMTIV\TBL.fs" />
     <Compile Include="SMT\Program.fs" />
   </ItemGroup>
 

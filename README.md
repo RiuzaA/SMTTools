@@ -56,9 +56,9 @@ Not useful for direct modding of files, but makes it easy to compare rows when i
 Converts the given binary file into a JSON file
 
 ### test (tool development only)
-```test game_data_directory```
+```test```
 
-Run tests for files in the given game directory. Only SMTV is supported at this time.
+Run tests. Game directories must be specified in your settings.json GameDirectoriesForTests.
 
 ## Supported Binary Types
 

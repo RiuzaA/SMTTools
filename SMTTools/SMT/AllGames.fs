@@ -79,7 +79,8 @@ let smtIV =
                                         ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]
-          OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"] }
+          OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"]
+          AllowNullCharsInMBM = true}
 
 let smtIVA =
     { defaultGame with
@@ -108,7 +109,8 @@ let smtIVA =
                                          typedefof<SMTIVA.SkillData.SkillData>,       (storableCSV <| SMTIVA.SkillData.SkillDataStorer()) ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]
-          OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"] }
+          OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"]
+          AllowNullCharsInMBM = true}
 
 let smtV =
     { defaultGame with
@@ -116,14 +118,16 @@ let smtV =
           Name = "Shin Megami Tensei V"
           Storers                = withDefaultStorers ()
                                 |> TypedMap.withVal typedefof<SMTV.SkillData.SkillData>   (SMTV.SkillData.SkillDataStorer() |> objStorable)
-                                |> TypedMap.withVal typedefof<SMTV.SkillData.SkillData>   (SMTV.SkillData.SkillDataStorer() |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTV.DemonInfo.DemonInfo>   (SMTV.DemonInfo.DemonInfoStorer() |> objStorable)
                                 |> ImmutableTypedMap.ofMutable
           TableRowConverters     = Map.ofList
-                [ {File = "SkillData.uasset"; TableNum = 0}, objStorable <| SMTV.SkillData.SkillDataStorer() ]
+                [ {File = "SkillData.uasset";    TableNum = 0}, objStorable <| SMTV.SkillData.SkillDataStorer()
+                  {File = "NKMBaseTable.uasset"; TableNum = 0}, objStorable <| SMTV.DemonInfo.DemonInfoStorer() ]
           CSVConverters          = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.CSVConverters
                                        [ typedefof<byte array>,               (storableCSV <| BytesStorer 0)
                                          typedefof<SMT.Formats.MSG.MSG>,      (storableCSV <| SMT.Formats.MSG.MSGStorer())
                                          typedefof<SMT.Formats.TBL.TBL>,      (storableCSV <| SMT.Formats.TBL.TBLStorer())
+                                         typedefof<SMTV.DemonInfo.DemonInfo>, (storableCSV <| SMTV.DemonInfo.DemonInfoStorer())
                                          typedefof<SMTV.SkillData.SkillData>, (storableCSV <| SMTV.SkillData.SkillDataStorer()) ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]}

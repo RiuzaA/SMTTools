@@ -62,7 +62,10 @@ type MSGStorer() =
             for entry in entries do
                 if entry.TextOffset <> 0u then
                     reader.BaseStream.Position <- startPos + int64 entry.TextOffset
-                    let txt = decodeAtlusText config (int entry.TextLength) reader
+                    let mutable txt = decodeAtlusText config (int entry.TextLength) reader
+                    if config.Game.ID <> "SMTSJR" && txt.EndsWith "{uFFFF}" then
+                        // have to strip 0xFF from these, since that's a delimiter for these games
+                        txt <- txt.Substring(0, txt.Length - 7)
                     entryMap <- Map.add entry.EntryID txt entryMap
             reader.BaseStream.Position <- startPos + int64 header.FileSize
             MSG entryMap
@@ -74,24 +77,40 @@ type MSGStorer() =
             writer.Write 0s
             writer.Write 1s
             let sizePos = writer.BaseStream.Position
-            writer.Write 0x12345678
-            writer.Write (Map.count msg)
-            writer.Write (Marshal.size<MSGHeader> + Marshal.size<MSGEntry> * Map.count msg)
-            // entry
+            writer.Write 0x12345678u
+            writer.Write (uint32 (Map.count msg))
+            writer.Write 0x20u
+            writer.Write 0L
             let entryStartPos = writer.BaseStream.Position
+            // allocates blank space for entry offset info
             Map.iter (fun k v -> writer.WriteStruct (MSGEntry(k, 0u, 0u, 0u))) msg
             let writeStr k str =
                 let strStartPos = writer.BaseStream.Position
-                let len = encodeAtlusText config str writer
-                writer.Write 0us
+                let len = encodeAtlusText config str writer + 1
+                if config.Game.ID = "SMTSJR" then
+                    writer.Write 0uy // additional NULL after NULL already part of string
+                else
+                    // Otherwise end is delimited with FF, since these can contain null chars
+                    writer.ShiftPosition -1L
+                    writer.Write 0xFFFFus
                 let curPos = writer.BaseStream.Position
                 writer.JumpTo (entryStartPos + int64 k * int64 Marshal.size<MSGEntry>)
-                writer.WriteStruct (MSGEntry(k, uint32 len, uint32 strStartPos, 0u))
+                let offset =
+                    if config.Game.ID = "SMTSJR" then
+                        uint32 strStartPos - 0x20u
+                    else
+                        uint32 strStartPos
+                writer.WriteStruct (MSGEntry(k, uint32 len, offset, 0u))
                 writer.JumpTo curPos
             Map.iter writeStr msg
+            if config.Game.ID = "SMTSJR" then
+                let totalSize = int (writer.BaseStream.Position - startPos)
+                // MSG entries in SJR are padded with zeros so they have a 16-byte alignment
+                if totalSize % 16 <> 0 then
+                    writer.PadZeros (16 - totalSize % 16)
             let endPos = writer.BaseStream.Position
             writer.JumpTo sizePos
-            writer.Write (endPos - startPos)
+            writer.Write (uint32 (endPos - startPos))
             writer.JumpTo endPos
 
     interface ICSV<MSG> with

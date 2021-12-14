@@ -1,6 +1,5 @@
 ﻿module SMT.Tests.Integration.SMTV.UAsset
 
-
 open Fuchu
 open System.Collections.Generic
 open System.IO

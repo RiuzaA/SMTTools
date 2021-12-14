@@ -112,8 +112,10 @@ Table files containing rows of binary data. Partial support for parsing that bin
 #### Shin Megami Tensei V
 
 ##### Project/Content/Blueprints/Gamedata/BinTable/Battle/Skill/SkillData.uasset
-Binary data is stored inside of the asset
 - TBL[0]: (50%): Non-passive skill data
+
+##### Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uasset
+- TBL[0]: (25%): Demon stats, affinities, and resistances
 
 ### UAsset (SMTV)
 
@@ -127,6 +129,27 @@ Unreal Engine asset types. Will convert to JSON as an UAssetAPI, and will dummy 
 	}
 }
 ```
+
+## Settings
+
+On first run a settings.json file will be generated in the same directory as the executable. The settings that can be changed are as followed:
+
+### ConvertFromFullWidthInMBM:
+```bool```
+
+Full width characters in MBM files will be converted to half width in the JSON file, and converted back to full width on rebuild of the binary table.
+
+### CharacterDictionaryFile
+```string```
+
+If not empty, a file is read for converting characters when processing text. This dictionary file is a text file where only rows containing 2 characters are counted, with the first being mapped to the second.
+
+This format matches that used in [Moonbeam](https://github.com/Megaflan/Moonbeam) by Megaflan.
+
+### GameDirectoriesForTests
+```Map<string, string```
+
+romfs directories can be given here for each game. This will be accessed when running integration tests. Not needed for standard use.
 
 ## Compile Yourself
 

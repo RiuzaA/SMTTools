@@ -83,6 +83,33 @@ let rec refCSVHeader<'a> =
             else
                 [| System.String.Join(".", List.rev (p.Name :: prefixes)) |]
     (typedefof<'a>).GetProperties() |> Array.map (names []) |> Array.concat
+        
+let rec refCSVRow<'a> (row: 'a) =
+    let rec getCell (p: PropertyInfo) =
+            let csvConverterAttr = p.PropertyType.GetCustomAttribute(typedefof<CSVCellConverterAttribute>, true)
+            let field = p.GetValue(row :> obj)
+            if csvConverterAttr <> null then
+                let fnPath = (csvConverterAttr :?> CSVCellConverterAttribute).Function
+                let lastDot = fnPath.LastIndexOf('.')
+                let modName = fnPath.Substring(0, lastDot)
+                let fnName  = fnPath.Substring(lastDot + 1)
+                let info = System.Reflection.Assembly.GetExecutingAssembly().ExportedTypes
+                        |> Seq.filter (fun t -> t.FullName = modName)
+                        |> Seq.exactlyOne
+                        |> (fun t -> t.GetMethod fnName)
+                let method = if info.IsGenericMethod then info.MakeGenericMethod [|field.GetType()|] else info
+                method.Invoke(null, [| field |]) :?> string array
+            else
+                let isHex = p.Name.StartsWith("Unknown") || p.Name.StartsWith("Zero")
+                match field with
+                | :? array<byte> as bytes   -> [| System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) bytes) |]
+                | :? IBytesLike as bytes    ->  [| System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) (bytes.ToBytes())) |]
+                | :? byte as i   when isHex -> [| (int i).ToString("X2") |]
+                | :? uint16 as i when isHex -> [| (int i).ToString("X2") |]
+                | :? uint32 as i when isHex -> [| (int i).ToString("X2") |]
+                | :? uint64 as i when isHex -> [| (int i).ToString("X2") |]
+                | e -> [| e.ToString() |]
+    (typedefof<'a>).GetProperties() |> Array.map getCell |> Array.concat
 
 // Types
 
@@ -157,6 +184,14 @@ let writeData config file (data: obj) =
 // Extensions
 
 type BinaryReader with
+    member reader.EnsureSize<'a> (size: int) (f: unit -> 'a) =
+        let startPos = reader.BaseStream.Position
+        let r = f ()
+        let endPos = reader.BaseStream.Position
+        if (endPos - startPos <> int64 size) then
+            failwith $"Expected size {size}, but read size of {endPos - startPos}"
+        r
+
     member reader.ReadStruct<'a> () = structRead<'a> reader
 
     member reader.ReadZeroPaddedString (len: int) = Encoding.ASCII.GetString(reader.ReadBytes(len)).TrimEnd '\u0000'
@@ -223,6 +258,8 @@ module Map =
     let csvToString map = "[" + String.Join("; ", Map.toArray map |> Array.map (fun (k, v) -> k.ToString() + "->" + v.ToString())) + "]"
 
     let insideOut<'k, 'v when 'k : comparison and 'v: comparison>  (map: Map<'k, 'v>) : Map<'v, 'k> = Map.fold (fun acc k v -> Map.add v k acc) Map.empty map
+
+    let merge m1 m2 = Map.fold (fun acc key v -> Map.add key v acc) m1 m2
 
 module String =
     let sanitizeControlChars (s: String) =

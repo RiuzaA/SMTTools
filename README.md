@@ -96,6 +96,14 @@ Table files containing rows of binary data. Partial support for parsing that bin
 - TBL[0] (100%): Actor/demon race names
 - TBL[1] (100%): Actor/demon names
 
+##### romfs/Item/ItemTable.tbb
+- TBL[0] (20%): Key items config
+- TBL[1] (20%): Consumable item config
+- TBL[2] (20%): Equipable item config
+- TBL[3] (20%): Relic category config
+- TBL[4] (20%): Relics config
+- TBL[5] (20%): Unused legion skills config
+
 #### Shin Megami Tensei IV Apocalypse
 
 ##### romfs/Battle/NKMBaseTable.tbb

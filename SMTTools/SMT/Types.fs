@@ -10,6 +10,18 @@ open SMT.Settings
 open SMT.TypeMap
 open Newtonsoft.Json.Linq
 
+type CSVUnpackAttribute(prefix: string) =
+    inherit Attribute()
+
+    new() = CSVUnpackAttribute("")
+
+    member self.Prefix with get () = prefix
+
+type CSVCellConverterAttribute(func: string) =
+    inherit Attribute()
+
+    member self.Function with get () = func
+
 type LogType = Info | Debug | Warning | Error
 
 let log t s = printfn $"log {t.ToString()}: {s}"
@@ -141,13 +153,6 @@ type HexBytesConverter() =
         | :? array<byte> as v ->
             JArray(Array.map (fun b -> (int b).ToString("X2")) v).WriteTo(writer)
         | _ -> failwith $"Unable to write json for type {value.GetType()}"
-
-type CSVUnpackAttribute(prefix: string) =
-    inherit Attribute()
-
-    new() = CSVUnpackAttribute("")
-
-    member self.Prefix with get () = prefix
 
 type Export<'a> =
     { GameID:       string

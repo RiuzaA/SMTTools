@@ -77,6 +77,8 @@ type ResistChange =
     | Null     = 0x02uy
     | Repel    = 0x03uy
 
+// type Ailments =  {}
+
 type SkillData =
     { StrID:         string     // 0x00
       ID:            uint16     // 0x20

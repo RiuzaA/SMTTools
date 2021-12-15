@@ -113,5 +113,6 @@ type TBCRStorer() =
                 let headerStr = System.String.Join(',', csv.CSVHeader config' data)
                 let rowsStr   = System.String.Join('\n', Array.map (fun row -> System.String.Join(',', row :> IEnumerable<string>)) <| csv.CSVRows config' data)
                 let csvBytes = Encoding.UTF8.GetBytes($"{headerStr}\n{rowsStr}")
-                File.Create($"{path}/{config'.Context.BaseFileName}.{fileID}.csv").Write(csvBytes, 0, csvBytes.Length)
+                use writer = config.Context.GetFileWriter $"{path}/{config'.Context.BaseFileName}.{fileID}.csv"
+                writer.Write csvBytes
                 fileID <- fileID + 1

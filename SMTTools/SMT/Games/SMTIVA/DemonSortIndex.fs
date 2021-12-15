@@ -33,10 +33,11 @@ type ActorName =
 
 type ActorNameStorer() =
     interface IStorable<ActorName> with
-        member self.Read _ reader = { Name = reader.ReadZeroPaddedString 0x20 }
+        member self.Read config reader =
+            { Name = decodeAtlusText config 0x20 reader }
         member self.Write config data writer =
             writer.EnsureSize 0x20 <| fun () ->
-                writer.WriteZeroPaddedString 0x20 data.Name
+                encodeZeroPaddedAtlusText config 0x20 data.Name writer
     interface ICSV<ActorName> with
         member self.CSVHeader _ _ = refCSVHeader<ActorName>
         member self.CSVRows config data =

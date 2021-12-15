@@ -25,6 +25,7 @@
     <Compile Include="SMT\Games\SMTIVA\DemonInfo.fs" />
     <Compile Include="SMT\Games\SMTIVA\SkillData.fs" />
     <Compile Include="SMT\Games\SMTIV\DemonSortIndex.fs" />
+    <Compile Include="SMT\Games\SMTIV\ItemTable.fs" />
     <Compile Include="SMT\Games\SMTV\SkillData.fs" />
     <Compile Include="SMT\Games\SMTV\DemonInfo.fs" />
     <Compile Include="SMT\AllGames.fs" />

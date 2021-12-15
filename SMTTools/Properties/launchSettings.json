@@ -2,7 +2,7 @@
   "profiles": {
     "SMTTools": {
       "commandName": "Project",
-      "commandLineArgs": "test"
+      "commandLineArgs": "SMTIV extract_csv \"C:\\dev\\3ds\\games\\SMT IV\\romfs\\item\\ItemTable.tbb\" C:\\dev\\projects\\smtiv\\test\\item"
     }
   }
 }

@@ -67,15 +67,42 @@ let smtIV =
           Storers                = withDefaultStorers ()
                                 |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.RaceName>  (SMTIV.DemonSortIndex.RaceNameStorer()  |> objStorable)
                                 |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.ActorName> (SMTIV.DemonSortIndex.ActorNameStorer() |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.KeyItem>        (SMTIV.ItemTable.KeyItemStorer() |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.ConsumableItem> (SMTIV.ItemTable.ConsumableItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.EquipmentItem>  (SMTIV.ItemTable.EquipmentItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicCategory>  (SMTIV.ItemTable.RelicCategoryStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicItem>      (SMTIV.ItemTable.RelicItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.LegionSkill>    (SMTIV.ItemTable.LegionSkillStorer()|> objStorable)
                                 |> ImmutableTypedMap.ofMutable
+          Sections               = Map.ofList
+                                       [ {File = "NKMSortIndex.tbb"; TableNum = 0}, "RaceName"
+                                         {File = "NKMSortIndex.tbb"; TableNum = 1}, "ActorName"
+                                         {File = "ItemTable.tbb";    TableNum = 0}, "KeyItem"
+                                         {File = "ItemTable.tbb";    TableNum = 1}, "ConsumableItem"
+                                         {File = "ItemTable.tbb";    TableNum = 2}, "EquipmentItem"
+                                         {File = "ItemTable.tbb";    TableNum = 3}, "RelicCategory"
+                                         {File = "ItemTable.tbb";    TableNum = 4}, "RelicItem"
+                                         {File = "ItemTable.tbb";    TableNum = 5}, "LegionSkillStorer" ]
           TableRowConverters     = Map.ofList
                                        [ {File = "NKMSortIndex.tbb"; TableNum = 0}, objStorable <| SMTIV.DemonSortIndex.RaceNameStorer()
-                                         {File = "NKMSortIndex.tbb"; TableNum = 1}, objStorable <| SMTIV.DemonSortIndex.ActorNameStorer() ]
+                                         {File = "NKMSortIndex.tbb"; TableNum = 1}, objStorable <| SMTIV.DemonSortIndex.ActorNameStorer()
+                                         {File = "ItemTable.tbb";    TableNum = 0}, objStorable <| (SMTIV.ItemTable.KeyItemStorer())
+                                         {File = "ItemTable.tbb";    TableNum = 1}, objStorable <| SMTIV.ItemTable.ConsumableItemStorer()
+                                         {File = "ItemTable.tbb";    TableNum = 2}, objStorable <| SMTIV.ItemTable.EquipmentItemStorer()
+                                         {File = "ItemTable.tbb";    TableNum = 3}, objStorable <| SMTIV.ItemTable.RelicCategoryStorer()
+                                         {File = "ItemTable.tbb";    TableNum = 4}, objStorable <| SMTIV.ItemTable.RelicItemStorer()
+                                         {File = "ItemTable.tbb";    TableNum = 5}, objStorable <| SMTIV.ItemTable.LegionSkillStorer() ]
           CSVConverters          = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.CSVConverters
                                        [ typedefof<SMT.Formats.MSG.MSG>,   (storableCSV <| SMT.Formats.MSG.MSGStorer())
                                          typedefof<SMT.Formats.TBL.TBL>,   (storableCSV <| SMT.Formats.TBL.TBLStorer())
                                          typedefof<SMTIV.DemonSortIndex.RaceName>,   (storableCSV <| SMTIV.DemonSortIndex.RaceNameStorer())
                                          typedefof<SMTIV.DemonSortIndex.ActorName>,  (storableCSV <| SMTIV.DemonSortIndex.ActorNameStorer())
+                                         typedefof<SMTIV.ItemTable.KeyItem>,         (storableCSV <| (SMTIV.ItemTable.KeyItemStorer()))
+                                         typedefof<SMTIV.ItemTable.ConsumableItem>,  (storableCSV <| SMTIV.ItemTable.ConsumableItemStorer())
+                                         typedefof<SMTIV.ItemTable.EquipmentItem>,   (storableCSV <| SMTIV.ItemTable.EquipmentItemStorer())
+                                         typedefof<SMTIV.ItemTable.RelicCategory>,   (storableCSV <| SMTIV.ItemTable.RelicCategoryStorer())
+                                         typedefof<SMTIV.ItemTable.RelicItem>,       (storableCSV <| SMTIV.ItemTable.RelicItemStorer())
+                                         typedefof<SMTIV.ItemTable.LegionSkill>,     (storableCSV <| SMTIV.ItemTable.LegionSkillStorer())
                                         ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]

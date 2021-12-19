@@ -116,6 +116,12 @@ and CSVConverters'<'a>(dict: ImmutableDictionary<Type, 'a>, defConverter: 'a) =
 
     member self.GetOrThrow (t: Type) = dict.[t]
 
+    member self.TryGet (t: Type) =
+        if dict.ContainsKey t then
+            Some dict.[t]
+        else
+            None
+
     member self.GetFor<'b> (b: 'b) = dict.GetValueOrDefault(b.GetType(), defConverter)
 
     member self.GetForOrThrow<'b> (b: 'b) = dict.[b.GetType()]

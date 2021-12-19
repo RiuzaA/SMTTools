@@ -184,7 +184,64 @@ type DemonInfoStorer() =
               }
 
         member self.Write config data writer =
-            failwith "Unimplemented"
+            writer.EnsureSize 0x1C4 <| fun () ->
+                let writeResist =
+                    function
+                    | Drain    -> writer.Write 1000
+                    | Repel    -> writer.Write 999
+                    | MultBy i -> writer.Write i
+                writer.Write data.ID
+                writer.Write data.Unknownx004
+                writer.WriteEnum data.Race
+                writer.Write data.Unknownx006
+                writer.Write data.Level
+                writer.Write data.Unknownx016
+                writer.Write data.Strength
+                writer.Write data.Vitality
+                writer.Write data.Magic
+                writer.Write data.Agility
+                writer.Write data.Luck
+                writer.Write data.Unknownx054
+                writeResist data.Resists.Phys
+                writeResist data.Resists.Fire
+                writeResist data.Resists.Ice
+                writeResist data.Resists.Elec
+                writeResist data.Resists.Force
+                writeResist data.Resists.Light
+                writeResist data.Resists.Dark
+                writeResist data.Resists.Almighty
+                writeResist data.Resists.Poison
+                writeResist data.Resists.Unknownx138
+                writeResist data.Resists.Panic
+                writeResist data.Resists.Charm
+                writeResist data.Resists.Sleep
+                writeResist data.Resists.Seal
+                writeResist data.Resists.Unknownx14C
+                writeResist data.Resists.Unknownx150
+                writeResist data.Resists.Unknownx154
+                writeResist data.Resists.Unknownx158
+                writeResist data.Resists.Unknownx15C
+                writeResist data.Resists.Unknownx160
+                writeResist data.Resists.Mirage
+                writeResist data.Resists.Unknownx168
+                writeResist data.Resists.Unknownx16C
+                writeResist data.Resists.Unknownx170
+                writeResist data.Resists.Unknownx174
+                writeResist data.Resists.Unknownx178
+                writeResist data.Resists.Unknownx17C
+                writeResist data.Resists.Unknownx180
+                writer.Write data.Affinities.Phys
+                writer.Write data.Affinities.Fire
+                writer.Write data.Affinities.Ice
+                writer.Write data.Affinities.Elec
+                writer.Write data.Affinities.Force
+                writer.Write data.Affinities.Light
+                writer.Write data.Affinities.Dark
+                writer.Write data.Affinities.Almighty
+                writer.Write data.Affinities.Ailment
+                writer.Write data.Affinities.Support
+                writer.Write data.Affinities.Healing
+                writer.Write data.Unknownx1B0
 
     interface ICSV<DemonInfo> with
         member self.CSVHeader _ _ = refCSVHeader<DemonInfo>

@@ -1,12 +1,16 @@
 ﻿module SMT.Formats.UAsset
 
 open System
+open System.Collections.Generic
 open System.IO
+open System.Text
 open UAssetAPI
 open UAssetAPI.PropertyTypes
 
+open SMT.Formats.TBL
 open SMT.Utils
 open SMT.Types
+open SMT.TypeMap
 
 type ExtendedUAsset =
     { UAsset: UAsset
@@ -95,3 +99,25 @@ type UAssetStorer() =
                 copyPart uexpWriter breakPoint <| int (memStream.Length - breakPoint)
             else
                 writer.Write(memStream.ToArray())
+
+    interface IManyCSV<ExtendedUAsset> with
+        member self.WriteCSVFiles config data path =
+            let mutable fileID = 0
+            let getWriter s =
+                fileID <- fileID + 1
+                config.Context.GetFileWriter s
+            let config' = {config with Context = {config.Context with GetFileWriter = getWriter}}
+            for kvPair in data.ParsedFromBinary do
+                let data = kvPair.Value
+                // This might contain other ManyCSVConverters inside it, like TBCR
+                match config'.Game.ManyCSVConverters.TryGet (data.GetType()) with
+                | Some manyCSV ->
+                    (manyCSV :> IManyCSV<obj>).WriteCSVFiles config' data path
+                | None ->
+                    let csv = config'.Game.CSVConverters.GetOrThrow (data.GetType()) :> ICSV<obj>
+                    let headerStr = System.String.Join(',', csv.CSVHeader config' data)
+                    let rows      = Array.map (fun row -> System.String.Join(',', row :> IEnumerable<string>)) <| csv.CSVRows config' data
+                    let rowsStr   = System.String.Join('\n', rows :> IEnumerable<string>)
+                    let csvBytes = Encoding.UTF8.GetBytes($"{headerStr}\n{rowsStr}")
+                    use writer = config.Context.GetFileWriter $"{path}/{config'.Context.BaseFileName}.{fileID}.csv"
+                    writer.Write csvBytes

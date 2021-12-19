@@ -157,7 +157,8 @@ let smtV =
                                          typedefof<SMTV.DemonInfo.DemonInfo>, (storableCSV <| SMTV.DemonInfo.DemonInfoStorer())
                                          typedefof<SMTV.SkillData.SkillData>, (storableCSV <| SMTV.SkillData.SkillDataStorer()) ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
-                                       [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]}
+                                       [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer())
+                                         typedefof<SMT.Formats.UAsset.ExtendedUAsset>, (storableManyCSV <| SMT.Formats.UAsset.UAssetStorer()) ]}
 
                                        
 let unknown =
@@ -171,8 +172,8 @@ let unknown =
                                          typedefof<SMT.Formats.MSG.MSG>,   (storableCSV <| SMT.Formats.MSG.MSGStorer())
                                          typedefof<SMT.Formats.TBL.TBL>,   (storableCSV <| SMT.Formats.TBL.TBLStorer()) ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
-                                       [ typedefof<SMT.Formats.TBB.TBB>,   (storableManyCSV <| SMT.Formats.TBB.TBBStorer())
-                                         typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ] }
+                                       [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer())
+                                         typedefof<SMT.Formats.UAsset.ExtendedUAsset>, (storableManyCSV <| SMT.Formats.UAsset.UAssetStorer()) ]}
 
 let GamesByID = Map.ofList [ smtSJR.ID.ToUpper(),  smtSJR
                              smtIV.ID.ToUpper(),   smtIV

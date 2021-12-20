@@ -3,9 +3,20 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Description>Tool for editing Shin Megami Tensei and other Atlus binary formats</Description>
+    <Authors>RiuzaA</Authors>
+    <Version>0.2.2</Version>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/RiuzaA/SMTTools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/RiuzaA/SMTTools</PackageProjectUrl>
   </PropertyGroup>
   
   <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <Page Include="SMT\App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

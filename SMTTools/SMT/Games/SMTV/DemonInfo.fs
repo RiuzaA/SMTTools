@@ -5,7 +5,7 @@ open SMT.Utils
 
 type Race =
     | Dummy        = 0x00uy
-    | GodlyUnused  = 0x01uy
+    | UnusedGodly  = 0x01uy
     | Herald       = 0x02uy
     | Megami       = 0x03uy
     | Avian        = 0x04uy
@@ -37,7 +37,7 @@ type Race =
     | Fallen       = 0x1Euy
     | Night        = 0x1Fuy
     | Snake        = 0x20uy
-    | Tyran        = 0x21uy
+    | Tyrant       = 0x21uy
     | Drake        = 0x22uy
     | Haunt        = 0x23uy
     | Foul         = 0x24uy

@@ -31,8 +31,13 @@ let loadAndApplyPatch game settings origfile patchfile outfile =
     let origData    = readData config origfile
     let patchDoc    = JsonConvert.DeserializeObject<JsonPatchDocument>(File.ReadAllText(patchfile), jsonSettings)
     let patchedData = applyJsonPatch config patchDoc origData
-    let outConfig   = {configFromFile outfile settings genericStorableFormats with Game = game}
-    writeData outConfig outfile patchedData
+    let file =
+        if Directory.Exists(outfile) then
+            $"{outfile}/{config.Context.FullFileName}{config.Context.FileExtension}"
+        else
+            outfile
+    let outConfig   = {configFromFile file settings genericStorableFormats with Game = game}
+    writeData outConfig file patchedData
 
 [<STAThread>][<EntryPoint>]
 let main argv =

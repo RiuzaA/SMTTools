@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Description>Tool for editing Shin Megami Tensei and other Atlus binary formats</Description>
     <Authors>RiuzaA</Authors>
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/RiuzaA/SMTTools</RepositoryUrl>
@@ -37,6 +37,7 @@
     <Compile Include="SMT\Games\SMTIVA\SkillData.fs" />
     <Compile Include="SMT\Games\SMTIV\DemonSortIndex.fs" />
     <Compile Include="SMT\Games\SMTIV\ItemTable.fs" />
+    <Compile Include="SMT\Games\SMTIV\NPCRoom.fs" />
     <Compile Include="SMT\Games\SMTV\SkillData.fs" />
     <Compile Include="SMT\Games\SMTV\DemonInfo.fs" />
     <Compile Include="SMT\AllGames.fs" />

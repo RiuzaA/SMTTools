@@ -26,4 +26,7 @@ let tests =
             roundTrip "battle/NKMSortIndex.tbb"
           testCase "roundTrip NpcRoom" <| fun _ ->
               roundTrip "npc_room/NpcRoomTable.tbb"
+          testCase "roundTrip quest NpcHaichiTable" <| fun _ -> roundTrip "quest_center/common/NpcHaichiTable.tbb"
+          testCase "roundTrip quest QcName"         <| fun _ -> roundTrip "quest_center/common/QcName.tbb"
+          testCase "roundTrip quest RankingTable"   <| fun _ -> roundTrip "quest_center/common/RankingTable.tbb"
         ]

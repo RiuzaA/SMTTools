@@ -11,7 +11,7 @@ open UAssetAPI
 open SMT.Utils
 open SMT.Types
 
-// huge warning for people who see this in the future: Newtonsoft fails to deserialize structs and leaves all values 0
+// huge warning for people who see this in the future: Newtonsoft fails to deserialize immutable structs and leaves all values 0 unless you add a constructor
 let jsonSettings =
     let settings = new JsonSerializerSettings()
     settings.Formatting <- Formatting.Indented
@@ -23,7 +23,7 @@ let jsonSettings =
     settings.Converters.Add(FStringJsonConverter())
     settings.Converters.Add(FPackageIndexJsonConverter())
     settings.Converters.Add(Newtonsoft.Json.Converters.StringEnumConverter())
-    settings.TypeNameHandling      <- TypeNameHandling.Objects
+    settings.TypeNameHandling      <- TypeNameHandling.Objects // Needed for UAsset only, but ugly; should look for ways to remove it
     settings.NullValueHandling     <- NullValueHandling.Include
     settings.FloatParseHandling    <- FloatParseHandling.Double
     settings.ReferenceLoopHandling <- ReferenceLoopHandling.Ignore

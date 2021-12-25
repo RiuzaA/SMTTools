@@ -79,7 +79,7 @@ let rec refCSVHeader<'a> =
     let rec names prefixes (p: PropertyInfo) =
             let csvUnpackAttr = p.PropertyType.GetCustomAttribute(typedefof<CSVUnpackAttribute>, true)
             if csvUnpackAttr <> null then
-                p.PropertyType.GetProperties() |> Array.map (names (((csvUnpackAttr :?> CSVUnpackAttribute).Prefix + p.Name) :: prefixes)) |> Array.concat
+                p.PropertyType.GetProperties() |> Array.map (names (p.Name :: prefixes)) |> Array.concat
             else
                 [| System.String.Join(".", List.rev (p.Name :: prefixes)) |]
     (typedefof<'a>).GetProperties() |> Array.map (names []) |> Array.concat
@@ -103,7 +103,7 @@ let rec refCSVRow<'a> (row: 'a) =
                 let isHex = p.Name.StartsWith("Unknown") || p.Name.StartsWith("Zero")
                 match field with
                 | :? array<byte> as bytes   -> [| System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) bytes) |]
-                | :? IBytesLike as bytes    ->  [| System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) (bytes.ToBytes())) |]
+                | :? IBytesLike as bytes    -> [| System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) (bytes.ToBytes())) |]
                 | :? byte as i   when isHex -> [| (int i).ToString("X2") |]
                 | :? uint16 as i when isHex -> [| (int i).ToString("X2") |]
                 | :? uint32 as i when isHex -> [| (int i).ToString("X2") |]
@@ -249,6 +249,8 @@ module Array =
     let replicateif<'a> (n: int) (f: int -> 'a) : 'a array = Array.map f [|0..n-1|]
     let replicatef<'a> (n: int) (f: unit -> 'a) : 'a array = replicateif n (fun _ -> f ())
     let foldi<'a, 'b> (f: 'b -> int -> 'a -> 'b) (acc: 'b) (arr: 'a array) = Array.fold (fun acc idx -> f acc idx arr.[idx]) acc [| 0..(arr.Length-1) |]
+
+    let tryGet idx array = if idx >= 0 && idx < Array.length array then Some array.[idx] else None
 
 module List =
     let replicateif<'a> (n: int) (f: unit -> 'a) : 'a list = List.map (fun _ -> f ()) [0..n-1]

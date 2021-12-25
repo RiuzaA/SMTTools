@@ -65,16 +65,21 @@ let smtIV =
           ID   = "SMTIV"
           Name = "Shin Megami Tensei IV"
           Storers                = withDefaultStorers ()
-                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.RaceName>  (SMTIV.DemonSortIndex.RaceNameStorer()  |> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.ActorName> (SMTIV.DemonSortIndex.ActorNameStorer() |> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.KeyItem>        (SMTIV.ItemTable.KeyItemStorer() |> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.ConsumableItem> (SMTIV.ItemTable.ConsumableItemStorer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.EquipmentItem>  (SMTIV.ItemTable.EquipmentItemStorer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicCategory>  (SMTIV.ItemTable.RelicCategoryStorer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicItem>      (SMTIV.ItemTable.RelicItemStorer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.LegionSkill>    (SMTIV.ItemTable.LegionSkillStorer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.NPCRoom.NPCRoomInfo1>     (SMTIV.NPCRoom.NPCRoomInfo1Storer()|> objStorable)
-                                |> TypedMap.withVal typedefof<SMTIV.NPCRoom.NPCRoomInfo2>     (SMTIV.NPCRoom.NPCRoomInfo2Storer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.RaceName>   (SMTIV.DemonSortIndex.RaceNameStorer()  |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.DemonSortIndex.ActorName>  (SMTIV.DemonSortIndex.ActorNameStorer() |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.KeyItem>         (SMTIV.ItemTable.KeyItemStorer() |> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.ConsumableItem>  (SMTIV.ItemTable.ConsumableItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.EquipmentItem>   (SMTIV.ItemTable.EquipmentItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicCategory>   (SMTIV.ItemTable.RelicCategoryStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.RelicItem>       (SMTIV.ItemTable.RelicItemStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.ItemTable.LegionSkill>     (SMTIV.ItemTable.LegionSkillStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.NPCRoom.NPCRoomInfo1>      (SMTIV.NPCRoom.NPCRoomInfo1Storer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.NPCRoom.NPCRoomInfo2>      (SMTIV.NPCRoom.NPCRoomInfo2Storer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.Quest.NPCHaichi>           (SMTIV.Quest.NPCHaichiStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.Quest.QCMessage>           (SMTIV.Quest.QCMessageStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.Quest.QuestLocation>       (SMTIV.Quest.QuestLocationStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.Quest.HunterRanking>       (SMTIV.Quest.HunterRankingStorer()|> objStorable)
+                                |> TypedMap.withVal typedefof<SMTIV.Quest.RankingCategory>     (SMTIV.Quest.RankingCategoryStorer()|> objStorable)
                                 |> ImmutableTypedMap.ofMutable
           Sections               = Map.ofList
                                        [ {File = "NKMSortIndex.tbb"; TableNum = 0}, "RaceName"
@@ -86,16 +91,23 @@ let smtIV =
                                          {File = "ItemTable.tbb";    TableNum = 4}, "RelicItem"
                                          {File = "ItemTable.tbb";    TableNum = 5}, "LegionSkillStorer" ]
           TableRowConverters     = Map.ofList
-                                       [ {File = "NKMSortIndex.tbb"; TableNum = 0}, objStorable <| SMTIV.DemonSortIndex.RaceNameStorer()
-                                         {File = "NKMSortIndex.tbb"; TableNum = 1}, objStorable <| SMTIV.DemonSortIndex.ActorNameStorer()
-                                         {File = "ItemTable.tbb";    TableNum = 0}, objStorable <| (SMTIV.ItemTable.KeyItemStorer())
-                                         {File = "ItemTable.tbb";    TableNum = 1}, objStorable <| SMTIV.ItemTable.ConsumableItemStorer()
-                                         {File = "ItemTable.tbb";    TableNum = 2}, objStorable <| SMTIV.ItemTable.EquipmentItemStorer()
-                                         {File = "ItemTable.tbb";    TableNum = 3}, objStorable <| SMTIV.ItemTable.RelicCategoryStorer()
-                                         {File = "ItemTable.tbb";    TableNum = 4}, objStorable <| SMTIV.ItemTable.RelicItemStorer()
-                                         {File = "ItemTable.tbb";    TableNum = 5}, objStorable <| SMTIV.ItemTable.LegionSkillStorer()
-                                         {File = "NpcRoomTable.tbb"; TableNum = 0}, objStorable <| SMTIV.NPCRoom.NPCRoomInfo1Storer()
-                                         {File = "NpcRoomTable.tbb"; TableNum = 1}, objStorable <| SMTIV.NPCRoom.NPCRoomInfo2Storer() ]
+                                       [ {File = "NKMSortIndex.tbb";   TableNum = 0}, objStorable <| SMTIV.DemonSortIndex.RaceNameStorer()
+                                         {File = "NKMSortIndex.tbb";   TableNum = 1}, objStorable <| SMTIV.DemonSortIndex.ActorNameStorer()
+                                         {File = "ItemTable.tbb";      TableNum = 0}, objStorable <| (SMTIV.ItemTable.KeyItemStorer())
+                                         {File = "ItemTable.tbb";      TableNum = 1}, objStorable <| SMTIV.ItemTable.ConsumableItemStorer()
+                                         {File = "ItemTable.tbb";      TableNum = 2}, objStorable <| SMTIV.ItemTable.EquipmentItemStorer()
+                                         {File = "ItemTable.tbb";      TableNum = 3}, objStorable <| SMTIV.ItemTable.RelicCategoryStorer()
+                                         {File = "ItemTable.tbb";      TableNum = 4}, objStorable <| SMTIV.ItemTable.RelicItemStorer()
+                                         {File = "ItemTable.tbb";      TableNum = 5}, objStorable <| SMTIV.ItemTable.LegionSkillStorer()
+                                         {File = "NpcRoomTable.tbb";   TableNum = 0}, objStorable <| SMTIV.NPCRoom.NPCRoomInfo1Storer()
+                                         {File = "NpcRoomTable.tbb";   TableNum = 1}, objStorable <| SMTIV.NPCRoom.NPCRoomInfo2Storer()
+                                         {File = "NpcHaichiTable.tbb"; TableNum = 0}, objStorable <| SMTIV.Quest.NPCHaichiStorer()
+                                         {File = "QcName.tbb";         TableNum = 0}, objStorable <| SMTIV.Quest.QCMessageStorer()
+                                         {File = "QcName.tbb";         TableNum = 1}, objStorable <| SMTIV.Quest.QCMessageStorer()
+                                         {File = "RankingTable.tbb";   TableNum = 0}, objStorable <| SMTIV.Quest.RankingCategoryStorer()
+                                         {File = "RankingTable.tbb";   TableNum = 1}, objStorable <| SMTIV.Quest.HunterRankingStorer()
+                                         {File = "RankingTable.tbb";   TableNum = 2}, objStorable <| SMTIV.Quest.RankingCategoryStorer()
+                                         {File = "RankingTable.tbb";   TableNum = 3}, objStorable <| SMTIV.Quest.HunterRankingStorer() ]
           CSVConverters          = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.CSVConverters
                                        [ typedefof<SMT.Formats.MSG.MSG>,   (storableCSV <| SMT.Formats.MSG.MSGStorer())
                                          typedefof<SMT.Formats.TBL.TBL>,   (storableCSV <| SMT.Formats.TBL.TBLStorer())
@@ -109,11 +121,16 @@ let smtIV =
                                          typedefof<SMTIV.ItemTable.LegionSkill>,     (storableCSV <| SMTIV.ItemTable.LegionSkillStorer())
                                          typedefof<SMTIV.NPCRoom.NPCRoomInfo1>,      (storableCSV <| SMTIV.NPCRoom.NPCRoomInfo1Storer())
                                          typedefof<SMTIV.NPCRoom.NPCRoomInfo2>,      (storableCSV <| SMTIV.NPCRoom.NPCRoomInfo2Storer())
+                                         typedefof<SMTIV.Quest.NPCHaichi>,           (storableCSV <| SMTIV.Quest.NPCHaichiStorer())
+                                         typedefof<SMTIV.Quest.QCMessage>,           (storableCSV <| SMTIV.Quest.QCMessageStorer())
+                                       //typedefof<SMTIV.Quest.QuestLocation>,       (storableCSV <| SMTIV.Quest.QuestLocationStorer())
+                                         typedefof<SMTIV.Quest.HunterRanking>,       (storableCSV <| SMTIV.Quest.HunterRankingStorer())
+                                         typedefof<SMTIV.Quest.RankingCategory>,     (storableCSV <| SMTIV.Quest.RankingCategoryStorer())
                                         ]
           ManyCSVConverters      = List.fold (fun conv (t, stor) -> conv.Add t stor) defaultGame.ManyCSVConverters
                                        [ typedefof<SMT.Formats.TBCR.TBCR>, (storableManyCSV <| SMT.Formats.TBCR.TBCRStorer()) ]
           OutOfRangeCharMappings = Map.ofList ['\u01F8', "NL"]
-          AllowNullCharsInMBM = true}
+          AllowNullCharsInMBM = true }
 
 let smtIVA =
     { defaultGame with

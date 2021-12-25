@@ -52,9 +52,10 @@ type Race =
 type Resist =
     | Drain // 1000
     | Repel // 999
-    | MultBy of int
+    | Percent of int
 
-[<CSVUnpack("Affinity")>]
+[<CSVUnpack>]
+[<CSVCellConverter("SMT.Utils.refCSVRow")>]
 type Affinities =
     { Phys:     int32      // 0x184
       Fire:     int32      // 0x188
@@ -69,7 +70,8 @@ type Affinities =
       Healing:  int32      // 0x1AC
     }
 
-[<CSVUnpack("Resist")>]
+[<CSVUnpack>]
+[<CSVCellConverter("SMT.Utils.refCSVRow")>]
 type Resists =
     { Phys:        Resist      // 0x114
       Fire:        Resist      // 0x118
@@ -101,6 +103,17 @@ type Resists =
       Unknownx180: Resist      // 0x180
     }
 
+type LeveledSkill = {Level: int32; Skill: int32}
+
+let noSkill = 0
+let noLeveledSkill = {Level = 0; Skill = 0}
+
+[<CSVUnpack>]
+[<CSVCellConverter("SMT.Games.SMTV.DemonInfo.skillsCSVRow")>]
+type Skills =
+    { Innate:  int32 array         // 0x84
+      Leveled: LeveledSkill array} // 0xB4
+
 type DemonInfo =
     { ID:                uint32            // 0x000
       Unknownx004:       byte array        // 0x004
@@ -114,6 +127,9 @@ type DemonInfo =
       Agility:           int               // 0x04C
       Luck:              int               // 0x050
       Unknownx054:       byte array        // 0x054
+      Fourx7C:           int32             // 0x07C
+      Zerox80:           int32             // 0x080
+      Skills:            Skills            // 0x084
       Resists:           Resists           // 0x114
       Affinities:        Affinities        // 0x184
       Unknownx1B0:       byte array        // 0x1B0
@@ -126,7 +142,7 @@ type DemonInfoStorer() =
                 match reader.ReadInt32 () with
                 | 1000 -> Drain
                 | 999  -> Repel
-                | e    -> MultBy e
+                | e    -> Percent e
             { ID               = reader.ReadUInt32 ()
               Unknownx004      = reader.ReadBytes <| 0x08 - 0x04
               Race             = reader.ReadByte () |> enumOrUnknown |> OrUnknown.unwrapOrErr
@@ -138,7 +154,14 @@ type DemonInfoStorer() =
               Magic            = reader.ReadInt32 ()
               Agility          = reader.ReadInt32 ()
               Luck             = reader.ReadInt32 ()
-              Unknownx054      = reader.ReadBytes <| 0x114 - 0x54
+              Unknownx054      = reader.ReadBytes <| 0x7C - 0x54
+              Fourx7C          = reader.ReadInt32 ()
+              Zerox80          = reader.ReadInt32 ()
+              Skills =
+                  { Innate  = Array.filter ((<>) noSkill)
+                           <| Array.replicatef 12 reader.ReadInt32
+                    Leveled = Array.filter ((<>) noLeveledSkill)
+                           <| Array.replicatef 12 (fun () -> {Level = reader.ReadInt32 (); Skill = reader.ReadInt32 () }) }
               Resists =
                   { Phys        = readResist ()
                     Fire        = readResist ()
@@ -187,9 +210,9 @@ type DemonInfoStorer() =
             writer.EnsureSize 0x1C4 <| fun () ->
                 let writeResist =
                     function
-                    | Drain    -> writer.Write 1000
-                    | Repel    -> writer.Write 999
-                    | MultBy i -> writer.Write i
+                    | Drain     -> writer.Write 1000
+                    | Repel     -> writer.Write 999
+                    | Percent i -> writer.Write i
                 writer.Write data.ID
                 writer.Write data.Unknownx004
                 writer.WriteEnum data.Race
@@ -202,6 +225,14 @@ type DemonInfoStorer() =
                 writer.Write data.Agility
                 writer.Write data.Luck
                 writer.Write data.Unknownx054
+                writer.Write data.Fourx7C
+                writer.Write data.Zerox80
+                for idx in 0..11 do 
+                    writer.Write (Array.tryGet idx data.Skills.Innate |> Option.defaultValue noSkill)
+                for idx in 0..11 do
+                    let a = Array.tryGet idx data.Skills.Leveled |> Option.defaultValue noLeveledSkill
+                    writer.Write a.Level
+                    writer.Write a.Skill
                 writeResist data.Resists.Phys
                 writeResist data.Resists.Fire
                 writeResist data.Resists.Ice
@@ -244,58 +275,18 @@ type DemonInfoStorer() =
                 writer.Write data.Unknownx1B0
 
     interface ICSV<DemonInfo> with
-        member self.CSVHeader _ _ = refCSVHeader<DemonInfo>
-        member self.CSVRows _ data =
-            [|[| data.ID.ToString()
-                 System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) data.Unknownx004) 
-                 data.Race.ToString()
-                 System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) data.Unknownx006) 
-                 data.Level.ToString()
-                 System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) data.Unknownx016)
-                 data.Strength.ToString()
-                 data.Vitality.ToString()
-                 data.Magic.ToString()
-                 data.Agility.ToString()
-                 data.Luck.ToString()
-                 System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) data.Unknownx054)
-                 data.Resists.Phys.ToString()
-                 data.Resists.Fire.ToString()
-                 data.Resists.Ice.ToString()
-                 data.Resists.Elec.ToString()
-                 data.Resists.Force.ToString()
-                 data.Resists.Light.ToString()
-                 data.Resists.Dark.ToString()
-                 data.Resists.Almighty.ToString()
-                 data.Resists.Poison.ToString()
-                 data.Resists.Unknownx138.ToString()
-                 data.Resists.Panic.ToString()
-                 data.Resists.Charm.ToString()
-                 data.Resists.Sleep.ToString()
-                 data.Resists.Seal.ToString()
-                 data.Resists.Unknownx14C.ToString()
-                 data.Resists.Unknownx150.ToString()
-                 data.Resists.Unknownx154.ToString()
-                 data.Resists.Unknownx158.ToString()
-                 data.Resists.Unknownx15C.ToString()
-                 data.Resists.Unknownx160.ToString()
-                 data.Resists.Mirage.ToString()
-                 data.Resists.Unknownx168.ToString()
-                 data.Resists.Unknownx16C.ToString()
-                 data.Resists.Unknownx170.ToString()
-                 data.Resists.Unknownx174.ToString()
-                 data.Resists.Unknownx178.ToString()
-                 data.Resists.Unknownx17C.ToString()
-                 data.Resists.Unknownx180.ToString()
-                 data.Affinities.Phys.ToString()
-                 data.Affinities.Fire.ToString()
-                 data.Affinities.Ice.ToString()
-                 data.Affinities.Elec.ToString()
-                 data.Affinities.Force.ToString()
-                 data.Affinities.Light.ToString()
-                 data.Affinities.Dark.ToString()
-                 data.Affinities.Almighty.ToString()
-                 data.Affinities.Ailment.ToString()
-                 data.Affinities.Support.ToString()
-                 data.Affinities.Healing.ToString()
-                 System.String.Join(" ", Array.map (fun b -> (int b).ToString("X2")) data.Unknownx1B0) 
-            |]|]
+        member self.CSVHeader _ _  = refCSVHeader<DemonInfo>
+        member self.CSVRows _ data = [| refCSVRow data |]
+
+(*
+type DemonInfo2 =
+    { ID:         uint32 // 0x00
+      Level:      uint32 // 0x04
+    }
+ *)
+
+// Utils
+
+let skillsCSVRow (data: Skills) =
+    [| System.String.Join("; ", Array.map (fun s -> s.ToString()) data.Innate )
+       System.String.Join("; ", Array.map (fun (a: LeveledSkill) -> $"@{a.Level}: {a.Skill}") data.Leveled) |]

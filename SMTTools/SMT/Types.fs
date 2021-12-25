@@ -10,12 +10,8 @@ open SMT.Settings
 open SMT.TypeMap
 open Newtonsoft.Json.Linq
 
-type CSVUnpackAttribute(prefix: string) =
+type CSVUnpackAttribute() =
     inherit Attribute()
-
-    new() = CSVUnpackAttribute("")
-
-    member self.Prefix with get () = prefix
 
 type CSVCellConverterAttribute(func: string) =
     inherit Attribute()

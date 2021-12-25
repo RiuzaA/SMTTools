@@ -104,6 +104,23 @@ Table files containing rows of binary data. Partial support for parsing that bin
 - TBL[4] (20%): Relics config
 - TBL[5] (20%): Unused legion skills config
 
+##### romfs/npc_room/NpcRoomTable.tbb
+- TBL[0] (20%): Unknown
+- TBL[1] (60%): NPC sprites and names
+
+##### romfs/quest/common/NpcRoomTable.tbb
+- TBL[0] (40%): Quest giver
+
+##### romfs/quest/common/QcName.tbb
+- TBL[0] (100%): Hunter association
+- TBL[1] (100%): Hunter association messages
+
+##### romfs/quest/common/RankingTable.tbb
+- TBL[0] (100%): Mikado ranking categories
+- TBL[1] (60%):  Mikado samurai rankings
+- TBL[2] (100%): Tokyo ranking categories
+- TBL[3] (60%):  Tokyo hunter rankings
+
 #### Shin Megami Tensei IV Apocalypse
 
 ##### romfs/Battle/NKMBaseTable.tbb
@@ -123,7 +140,7 @@ Table files containing rows of binary data. Partial support for parsing that bin
 - TBL[0]: (50%): Non-passive skill data
 
 ##### Project/Content/Blueprints/Gamedata/BinTable/Devil/NKMBaseTable.uasset
-- TBL[0]: (25%): Demon stats, affinities, and resistances
+- TBL[0]: (30%): Demon stats, skills, affinities, and resistances
 
 ### UAsset (SMTV)
 

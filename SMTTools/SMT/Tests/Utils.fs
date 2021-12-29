@@ -37,5 +37,5 @@ let tests =
           testCase "refCSVRow" <| fun _ ->
               let data = {ID = "my_id"; Inner = {Num = 456; Bytes = [| 0x01uy; 0x02uy; 0xFFuy |]}}
               let cells = refCSVRow data
-              Assert.Equal("Created expected cells", [|"my_id"; "456"; "01 02 FF"|], cells)
+              Assert.Equal("Created expected cells", [|"\"my_id\""; "456"; "01 02 FF"|], cells)
           ]

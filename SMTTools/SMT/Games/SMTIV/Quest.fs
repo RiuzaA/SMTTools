@@ -4,6 +4,8 @@ open SMT.Formats.Text
 open SMT.Types
 open SMT.Utils
 
+// NpcHaichiTable
+
 type NPCHaichi =
     { Name:       string // 0x00
       Unknownx60: byte array // 0x74
@@ -25,6 +27,8 @@ type NPCHaichiStorer() =
         member self.CSVHeader _ _ = refCSVHeader<NPCHaichi>
         member self.CSVRows _ data = [| refCSVRow data |]
 
+// QcName
+
 type QCMessage = {Name: string}
 
 type QCMessageStorer() =
@@ -40,6 +44,8 @@ type QCMessageStorer() =
         
 type QuestLocation = QCMessage
 type QuestLocationStorer = QCMessageStorer
+
+// RankingTable
 
 type RankingCategory = {Name: string}
 
@@ -70,4 +76,57 @@ type HunterRankingStorer() =
                 writer.Write data.Unknownx16
     interface ICSV<HunterRanking> with
         member self.CSVHeader _ _ = refCSVHeader<HunterRanking>
+        member self.CSVRows _ data = [| refCSVRow data |]
+
+// QuestData & SubQuestData
+
+type QuestData =
+    { ID:          uint16     // 0x000
+      Unknownx002: byte array // 0x002
+      NameShort:   string     // 0x008
+      NameLong:    string     // 0x038
+      QuestGiver:  string     // 0x0B8
+      Description: string     // 0x0E8
+      Unknownx128: byte array // 0x128
+    }
+
+type QuestDataStorer() =
+    interface IStorable<QuestData> with
+        member self.Read config reader =
+            { ID          = reader.ReadUInt16 ()
+              Unknownx002 = reader.ReadBytes <| 0x008 - 0x002
+              NameShort   = decodeAtlusText config 0x30 reader
+              NameLong    = decodeAtlusText config 0x80 reader
+              QuestGiver  = decodeAtlusText config 0x30 reader
+              Description = decodeAtlusText config 0x40 reader
+              Unknownx128 = reader.ReadBytes <| 0x1B4 - 0x128 }
+        member self.Write config data writer =
+            writer.EnsureSize 0x1B4 <| fun () ->
+                writer.Write data.ID
+                writer.Write data.Unknownx002
+                encodeZeroPaddedAtlusText config 0x30 data.NameShort writer
+                encodeZeroPaddedAtlusText config 0x80 data.NameLong writer
+                encodeZeroPaddedAtlusText config 0x30 data.QuestGiver writer
+                encodeZeroPaddedAtlusText config 0x40 data.Description writer
+                writer.Write data.Unknownx128
+    interface ICSV<QuestData> with
+        member self.CSVHeader _ _ = refCSVHeader<QuestData>
+        member self.CSVRows _ data = [| refCSVRow data |]
+
+type QuestReward =
+    { Name:       string     // 0x00
+      Unknownx30: byte array // 0x30
+    }
+
+type QuestRewardStorer() =
+    interface IStorable<QuestReward> with
+        member self.Read config reader =
+            { Name       = decodeAtlusText config (0x30 - 0x00) reader
+              Unknownx30 = reader.ReadBytes <| 0x50 - 0x30 }
+        member self.Write config data writer =
+            writer.EnsureSize 0x50 <| fun () ->
+                encodeZeroPaddedAtlusText config 0x30 data.Name writer
+                writer.Write data.Unknownx30
+    interface ICSV<QuestReward> with
+        member self.CSVHeader _ _ = refCSVHeader<QuestReward>
         member self.CSVRows _ data = [| refCSVRow data |]

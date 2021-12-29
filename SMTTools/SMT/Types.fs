@@ -5,10 +5,10 @@ open System.IO
 open System.Collections.Immutable
 open System.Text
 open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 
 open SMT.Settings
 open SMT.TypeMap
-open Newtonsoft.Json.Linq
 
 type CSVUnpackAttribute() =
     inherit Attribute()

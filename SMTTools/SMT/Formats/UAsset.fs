@@ -1,5 +1,6 @@
 ﻿module SMT.Formats.UAsset
 
+open Newtonsoft.Json
 open System
 open System.Collections.Generic
 open System.IO

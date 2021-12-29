@@ -108,6 +108,9 @@ let rec refCSVRow<'a> (row: 'a) =
                 | :? uint16 as i when isHex -> [| (int i).ToString("X2") |]
                 | :? uint32 as i when isHex -> [| (int i).ToString("X2") |]
                 | :? uint64 as i when isHex -> [| (int i).ToString("X2") |]
+                | :? string as s ->
+                    let sanitized = s.Replace("\"", "\"\"")
+                    [| $"\"{sanitized}\"" |]
                 | e -> [| e.ToString() |]
     (typedefof<'a>).GetProperties() |> Array.map getCell |> Array.concat
 
@@ -154,6 +157,11 @@ let enumOrUnknown<'a, 'i when 'a : enum<'i>> (i: 'i) : OrUnknown<'a, 'i> =
 
 module OrUnknown =
     let ofEnum<'a, 'i when 'a : enum<'i>> (i: 'i) : OrUnknown<'a, 'i> = enumOrUnknown i
+
+    let fromEnum<'a, 'i when 'a : enum<'i>> (unknown: OrUnknown<'a, 'i>) =
+        match unknown with
+        | Known a   -> LanguagePrimitives.EnumToValue a
+        | Unknown a -> a
 
     let simpleToString = function
         | Known a   -> a.ToString()
